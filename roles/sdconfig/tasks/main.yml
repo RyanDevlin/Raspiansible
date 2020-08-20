@@ -1,0 +1,3 @@
+---
+# tasks file for sdconfig
+- include_tasks: "device-discovery.yml"

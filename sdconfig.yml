@@ -2,42 +2,5 @@
 - name: playbook to configuring an SD card for a Raspberry Pi
   hosts: localhost
   gather_facts: true
-  tasks:
-    - name: Gather device facts
-      set_fact:
-        devices: "{{ devices | default([]) + [ {item: { 'model': ansible_devices[item]['model'], 'host': ansible_devices[item]['host'], 'size': ansible_devices[item]['size'] } } ] }}"
-      with_items: "{{ ansible_facts['devices'] }}"
-      when: '"loop" not in item' # We don't care about loop devices
-
-    - debug:
-        msg: 
-          - "==========================================================="
-          - "The following devices have been found on this machine:"
-          - "==========================================================="
-    - name: List located devices
-      debug:
-        msg: "{{ devices }}"
-    
-    - name: Create a list of device names
-      set_fact:
-        dev_names: "{{  dev_names | default([]) + [lookup('dict', item) | json_query('key')] }}"
-      loop: "{{ devices }}"
-      no_log: true
-
-    - pause:
-        prompt: 'Please type the name of the device you wish to install Raspbian on. Your choices are {{ dev_names | to_yaml }}'
-      register: selection
-      delegate_to: localhost
-
-    - fail:
-        msg: "ERROR: The device '{{ selection.user_input }}' was not found in the list above."
-      when: 'selection.user_input not in dev_names'
-
-    - pause:
-        prompt: "You've selected '{{ selection.user_input }}'. Do you wish to continue with the installation (y/n)?"
-      register: continue_selection
-      delegate_to: localhost
-    
-    - fail:
-        msg: "Installation aborted."
-      when: continue_selection.user_input | lower == "n" or continue_selection.user_input | lower == "no"
+  roles:
+    - sdconfig
