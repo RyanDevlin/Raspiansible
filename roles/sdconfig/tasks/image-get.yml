@@ -1,0 +1,62 @@
+- block:
+  - debug:
+      msg: "Which OS version you wish to install? Your options are [1] Raspbian Desktop with recommended software, [2] Raspbian Desktop, [3] Raspbian lite (headless)."
+  - pause:
+      prompt: 'Please enter [1,2, or 3] from above'
+    register: selection
+    delegate_to: localhost
+
+  - set_fact:
+      os_version: "{{ selection.user_input }}"
+
+- fail:
+    msg: "Error: please type 1, 2, or 3. Aborting..."
+  when: os_version not in num_select
+
+- debug:
+    msg: "You've selected to install {{ raspbian_os[os_version | int - 1] }}"
+
+- block:
+  - pause:
+      prompt: "Is this correct (y/n)?"
+    register: selection
+    delegate_to: localhost
+
+  - set_fact:
+      decision: "{{ selection.user_input }}"
+
+- fail:
+    msg: "Installation aborted."
+  when: decision | lower == "n" or decision | lower == "no"
+
+- name: Checking if Raspbian file is cached
+  # This block includes an optimization to check the headers of the url for the filename to ftd_file_download
+  # If this filename is already found in the files folder of the role, we don't need to download it.
+  block:
+  - uri:
+      url: "{{ raspbian_urls[os_version | int - 1] }}"
+      method: HEAD
+    register: uri_test
+
+  - set_fact:
+      os_filename: "{{ uri_test.url | regex_search('([0-9a-zA-Z\\._\\-]+).zip') | replace('.zip', '.img') }}"
+
+  - stat:
+      path: "{{ role_path }}/files/{{ os_filename }}"
+    register: stat_result
+
+  - debug:
+      msg: "Cached Raspbian file found."
+    when: stat_result.stat.exists
+
+  - debug:
+      msg: "Raspbian file does not exist on this machine."
+    when: not stat_result.stat.exists
+
+  - name: Downloading Raspbian...
+    unarchive:
+      src: "{{ raspbian_urls[os_version | int - 1] }}"
+      dest: "{{ role_path }}/files/"
+      remote_src: yes
+      mode: "600"
+    when: not stat_result.stat.exists

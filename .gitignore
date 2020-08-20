@@ -5,6 +5,9 @@
 
 # Project specific files
 results
+*.zip
+*.img
+documentation/
 
 # User-specific files
 *.rsuser

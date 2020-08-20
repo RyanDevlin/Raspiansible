@@ -1,3 +1,4 @@
 ---
 # tasks file for sdconfig
-- include_tasks: "device-discovery.yml"
+- include_tasks: "image-get.yml"
+#- include_tasks: "device-discovery.yml"
