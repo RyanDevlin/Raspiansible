@@ -1,0 +1,21 @@
+---
+# vars file for image-get.yml tasks
+num_select:
+  - '1'
+  - '2'
+  - '3'
+
+raspbian_os:
+  - "Raspbian Desktop With Recommended Software"
+  - "Raspbian Desktop"
+  - "Raspbian Lite"
+
+raspbian_urls:
+  - "https://downloads.raspberrypi.org/raspios_full_armhf_latest"
+  - "https://downloads.raspberrypi.org/raspios_armhf_latest"
+  - "https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
+
+raspbian_type_rule:
+  - '(?=.*full)(?=.*\.img$)' # Must contain 'full'
+  - '^(?=.*raspios)((?!full|lite).)*(\.img)$' # Does not contain 'full' or 'lite', but contains 'raspios'
+  - '(?=.*lite)(?=.*\.img$)' # Must contain 'lite'

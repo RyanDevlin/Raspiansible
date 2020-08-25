@@ -41,22 +41,37 @@
   - set_fact:
       os_filename: "{{ uri_test.url | regex_search('([0-9a-zA-Z\\._\\-]+).zip') | replace('.zip', '.img') }}"
 
-  - stat:
-      path: "{{ role_path }}/files/{{ os_filename }}"
-    register: stat_result
+  - find:
+      path: "{{ role_path }}/files/"
+      patterns: '{{ raspbian_type_rule[os_version | int - 1] }}'
+      use_regex: yes
+    register: find_result
+  
+  # As long as the user does not mess with the state of the files folder and Raspian naming conventions continue, we can assume the 0'th index is the file name we want
+  - set_fact:
+      file_on_disk: "{{ 'null' if (find_result.matched == 0) else find_result.files[0].path | regex_search('([0-9a-zA-Z\\._\\-]+).img') }}"
+  - block:
+  # Old OS file or file not found, delete and update with latest version
+    - block:
+      - debug:
+          msg: "Found file {{ file_on_disk }}, which is not the latest version of Raspian. Deleting..."
+      
+      - name: Removing old image file to save space
+        file:
+          path: "{{ role_path }}/files/{{ file_on_disk }}"
+          state: absent
+      when: file_on_disk != 'null'
+    
+    - name: Downloading latest version of Raspbian...
+      unarchive:
+        src: "{{ raspbian_urls[os_version | int - 1] }}"
+        dest: "{{ role_path }}/files/"
+        remote_src: yes
+        mode: "600"
+      # Only do this when the local machine state is not correct
+    - set_fact:
+        file_on_disk: "{{ os_filename }}"
+    when:  file_on_disk != os_filename
 
   - debug:
-      msg: "Cached Raspbian file found."
-    when: stat_result.stat.exists
-
-  - debug:
-      msg: "Raspbian file does not exist on this machine."
-    when: not stat_result.stat.exists
-
-  - name: Downloading Raspbian...
-    unarchive:
-      src: "{{ raspbian_urls[os_version | int - 1] }}"
-      dest: "{{ role_path }}/files/"
-      remote_src: yes
-      mode: "600"
-    when: not stat_result.stat.exists
+      msg: "Found file {{ file_on_disk }}, which will be installed."

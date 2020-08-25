@@ -1,8 +1,22 @@
-- name: Gather device facts
-  set_fact:
-    devices: "{{ devices | default([]) + [ {item: { 'model': ansible_devices[item]['model'], 'host': ansible_devices[item]['host'], 'size': ansible_devices[item]['size'] } } ] }}"
-  with_items: "{{ ansible_facts['devices'] }}"
-  when: '"loop" not in item' # We don't care about loop devices
+- block: # Block for automatic device discovery
+  - name: Gather device facts
+    set_fact:
+      install_target: "{{ lookup('dict', {item: { 'model': ansible_devices[item]['model'], 'host': ansible_devices[item]['host'], 'size': ansible_devices[item]['size'] } } ) }}"
+    with_items: "{{ ansible_facts['devices'] }}"
+    when: 
+      - '"loop" not in item' # We don't care about loop devices
+      - ansible_devices[item]['removable'] == "1" # The SD card should show up with this flag set
+      - item in scsi_devices
+      - "'usb' in ansible_devices[item]['model'] | lower or 'usb' in ansible_devices[item]['host'] | lower or 'usb' in ansible_devices[item]['links']['ids'] | lower"
+    # This is needed when the loop above doesn't execute due to the when clause
+  - fail:
+      msg: "Failed locating suitable device to install on. Please edit the 'manual_install_target' variable in 'device-discovery-var.yml' in the 'vars' folder of the 'sdconfig' role."
+    when: install_target is not defined
+  when: manual_install_target == ''
+
+- set_fact:
+    install_target: "{{ manual_install_target }}"
+  when: manual_install_target != ''
 
 - debug:
     msg: 
@@ -11,39 +25,17 @@
       - "==========================================================="
 - name: List located devices
   debug:
-    msg: "{{ devices }}"
+    msg: "{{ install_target }}"
 
-- name: Create a list of device names
-  set_fact:
-    dev_names: "{{  dev_names | default([]) + [lookup('dict', item) | json_query('key')] }}"
-  loop: "{{ devices }}"
-  no_log: true
+#- block:
+#  - pause:
+#      prompt: "Do you wish to continue with the installation (y/n)?"
+#    register: selection
+#    delegate_to: localhost
 
-- block:
-  - pause:
-      prompt: 'Please type the name of the device you wish to install Raspbian on. Your choices are {{ dev_names | to_yaml }}'
-    register: selection
-    delegate_to: localhost
+#  - set_fact:
+#      decision: "{{ selection.user_input }}"
 
-  - set_fact:
-      target: "{{ selection.user_input }}"
-
-- fail:
-    msg: "ERROR: The device '{{ target }}' was not found in the list above."
-  when: 'target not in dev_names'
-
-- debug:
-    msg: "You've selected '{{ target }}'."
-
-- block:
-  - pause:
-      prompt: "Do you wish to continue with the installation (y/n)?"
-    register: selection
-    delegate_to: localhost
-
-  - set_fact:
-      decision: "{{ selection.user_input }}"
-
-- fail:
-    msg: "Installation aborted."
-  when: decision | lower == "n" or decision | lower == "no"
+#- fail:
+#    msg: "Installation aborted."
+#  when: decision | lower == "n" or decision | lower == "no"
