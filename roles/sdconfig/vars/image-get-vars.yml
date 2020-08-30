@@ -1,5 +1,7 @@
 ---
 # vars file for image-get.yml tasks
+os_version: "lite"
+
 shorthand_versions:
   - 'full'
   - 'desktop'
