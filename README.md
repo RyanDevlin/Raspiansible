@@ -1,5 +1,5 @@
 # Raspiansible
-Ansible playbooks for day 1 operations on a Raspberry Pi!
+Ansible roles to fully configure a new Raspberry Pi.
 
 ## Getting Started
 # Automated Setup
