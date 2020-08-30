@@ -9,7 +9,7 @@ manual_install_target: ''
 # This isn't a catch all, as maybe the user has 5+ usb devices plugged in (you never know),
 # in which case we will fall back on asking them to edit the variable above.
 scsi_devices:
-  - "sdaa"
+  - "sda"
   - "sdb"
   - "sdc"
 

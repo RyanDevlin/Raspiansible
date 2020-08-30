@@ -2,5 +2,7 @@
 - name: playbook to configuring an SD card for a Raspberry Pi
   hosts: localhost
   gather_facts: true
+  vars:
+    os_version: "lite"
   roles:
     - sdconfig

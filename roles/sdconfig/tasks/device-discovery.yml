@@ -10,7 +10,7 @@
       - "'usb' in ansible_devices[item]['model'] | lower or 'usb' in ansible_devices[item]['host'] | lower or 'usb' in ansible_devices[item]['links']['ids'] | lower"
     # This is needed when the loop above doesn't execute due to the when clause
   - fail:
-      msg: "Failed locating suitable device to install on. Please edit the 'manual_install_target' variable in 'device-discovery-var.yml' in the 'vars' folder of the 'sdconfig' role."
+      msg: "Failed locating suitable device to install on. Please override the 'manual_install_target' variable with a device path such as '/dev/sda'"
     when: install_target is not defined
   when: manual_install_target == ''
 
@@ -23,9 +23,10 @@
       - "==========================================================="
       - "The following devices have been found on this machine:"
       - "==========================================================="
-- name: List located devices
-  debug:
+    verbosity: 1
+- debug:
     msg: "{{ install_target }}"
+    verbosity: 1
 
 #- block:
 #  - pause:
