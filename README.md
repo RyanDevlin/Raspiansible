@@ -2,6 +2,13 @@
 Ansible playbooks for day 1 operations on a Raspberry Pi!
 
 ## Getting Started
+# Automated Setup
+1. Plug an SD card into your machine.
+2. Run the SD card configuration playbook
+```bash
+kanye@kanyes-pc:~/Raspiansible$ ansible-playbook sdconfig.yml
+```
+# Manual Setup
 1. Download Raspbian OS here [lite version preferred]: https://www.raspberrypi.org/downloads/raspberry-pi-os/
 2. Plug an SD card into your machine and use lsblk to determine where it is mounted. Here we see our SD card is identified as the device /dev/sda.
 ```bash
