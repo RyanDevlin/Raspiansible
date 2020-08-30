@@ -1,18 +1,6 @@
 ---
 # vars file for device-discovery.yml tasks
 
-# The path of the device Raspbian will be installed on (eg. '/dev/sda', '/dev/sdb')
-# If left blank, automatic discovery will try to find the disk
-manual_install_target: ''
-
-# These are the devices we will scan through to search for the trigger words.
-# This isn't a catch all, as maybe the user has 5+ usb devices plugged in (you never know),
-# in which case we will fall back on asking them to edit the variable above.
-scsi_devices:
-  - "sda"
-  - "sdb"
-  - "sdc"
-
 # If any of the words in this list are found in the the devices 'host' or 'links.ids' or 'model'
 # sections of the localhost Ansible Facts, the device will be suggested as an installation target
 trigger_words:

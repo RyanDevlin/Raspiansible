@@ -6,7 +6,7 @@
     when: 
       - '"loop" not in item' # We don't care about loop devices
       - ansible_devices[item]['removable'] == "1" # The SD card should show up with this flag set
-      - item in scsi_devices
+      - item in common_devices
       - "'usb' in ansible_devices[item]['model'] | lower or 'usb' in ansible_devices[item]['host'] | lower or 'usb' in ansible_devices[item]['links']['ids'] | lower"
     # This is needed when the loop above doesn't execute due to the when clause
   - fail:

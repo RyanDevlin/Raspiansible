@@ -3,4 +3,4 @@
 - include_vars:
     dir: vars/
 - include_tasks: "image-get.yml"
-#- include_tasks: "device-discovery.yml"
+- include_tasks: "device-discovery.yml"
