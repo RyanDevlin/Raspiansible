@@ -13,7 +13,7 @@ raspbian_urls:
 # ===============================================================================================
 # Vars associated with device-discovery
 
-# The path of the device Raspbian will be installed on (eg. '/dev/sda', '/dev/sdb')
+# The namne of the device Raspbian will be installed on (eg. 'sda', 'sdb')
 # If left blank, automatic discovery will try to find the disk
 manual_install_target: ''
 

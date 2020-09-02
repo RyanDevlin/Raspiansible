@@ -1,0 +1,19 @@
+  - name: Gather device facts
+    set_fact:
+      install_target_facts: "{{ lookup('dict', {install_target: { 'model': ansible_devices[install_target]['model'], 'host': ansible_devices[install_target]['host'], 'size': ansible_devices[install_target]['size'], 'mounts': {} } } ) }}"
+
+  - name: Locate target device mounted partitions
+    set_fact:
+      mounts: "{{ mounts | default({}) | combine({ item.device: item.mount }) }}"
+    with_items: "{{ ansible_facts['mounts'] }}"
+    when: "item.device | regex_search(install_target_facts['key'])"
+    no_log: yes
+  
+  - block:
+    - name: Enrich device facts with mount information
+      set_fact:
+        install_target_enriched: "{{ install_target_facts['value'] | combine({ 'mounts': mounts | default({}) }, recursive=True) }}"
+
+    - name: Recombine dicts
+      set_fact:
+        install_target_facts: "{{ install_target_facts | combine({ 'value': install_target_enriched }, recursive=True) }}"

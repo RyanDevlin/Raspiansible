@@ -40,7 +40,7 @@
           state: absent
       when: file_on_disk != 'null'
     
-    - name: Downloading latest version of Raspbian...
+    - name: Downloading latest version of Raspbian... [This can take minutes]
       unarchive:
         src: "{{ raspbian_urls[os_version] }}"
         dest: "{{ role_path }}/files/"

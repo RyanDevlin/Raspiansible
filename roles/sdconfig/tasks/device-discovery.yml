@@ -1,22 +1,25 @@
-- block: # Block for automatic device discovery
-  - name: Gather device facts
-    set_fact:
-      install_target: "{{ lookup('dict', {item: { 'model': ansible_devices[item]['model'], 'host': ansible_devices[item]['host'], 'size': ansible_devices[item]['size'] } } ) }}"
+- name: Select installation target
+  block:
+  - set_fact:
+      install_target: "{{ manual_install_target }}"
+    when: manual_install_target != ''
+
+  - set_fact:
+      install_target: "{{ item }}"
     with_items: "{{ ansible_facts['devices'] }}"
-    when: 
+    when:
+      - manual_install_target == '' # No device manually selected
       - '"loop" not in item' # We don't care about loop devices
       - ansible_devices[item]['removable'] == "1" # The SD card should show up with this flag set
-      - item in common_devices
+      - item in common_devices # See device-discovery-vars.yml to modify this list
       - "'usb' in ansible_devices[item]['model'] | lower or 'usb' in ansible_devices[item]['host'] | lower or 'usb' in ansible_devices[item]['links']['ids'] | lower"
-    # This is needed when the loop above doesn't execute due to the when clause
-  - fail:
-      msg: "Failed locating suitable device to install on. Please override the 'manual_install_target' variable with a device path such as '/dev/sda'"
-    when: install_target is not defined
-  when: manual_install_target == ''
 
-- set_fact:
-    install_target: "{{ manual_install_target }}"
-  when: manual_install_target != ''
+  - fail:
+      msg: "Failed locating suitable device to install on. Please override the 'manual_install_target' variable with a device name such as 'sda'"
+    when: install_target is not defined
+
+- name: Gather install target device facts
+  include_tasks: device-facts.yml
 
 - debug:
     msg: 
@@ -25,7 +28,7 @@
       - "==========================================================="
     verbosity: 1
 - debug:
-    msg: "{{ install_target }}"
+    msg: "{{ install_target_facts }}"
     verbosity: 1
 
 #- block:
