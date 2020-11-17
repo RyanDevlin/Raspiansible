@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# Colors for echo formatting
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+pi_default_user="pi"
+
+echo "Enter a name for this ssh key: "
+read keyname
+
+# Create our ssh keys
+ssh-keygen -t ed25519 -f ~/.ssh/"$keyname" -P ""
+
+# Get the ip address for the pi listed in the inventory file
+pi_ip=$(ansible --list-hosts pi4 | tail -1 | xargs)
+
+echo -e "${GREEN}=============================================${NC}"
+echo -e "${GREEN}RASPBERRY PI DEFAULT PASSWORD: 'raspberry'${NC}"
+echo -e "${GREEN}=============================================${NC}"
+
+# Copy the public key to the pi
+ssh-copy-id -i ~/.ssh/"$keyname".pub "$pi_default_user"@"$pi_ip"
+
+# Ensure the ssh-agent is started with each new terminal session
+ansible localhost -m blockinfile -a "path=~/.bashrc block='eval \$(ssh-agent)\nssh-add ~/.ssh/${keyname}'"
+
+# Start the ssh agent and add our private key to inventory
+is_started=$(echo $SSH_AGENT_SOCK)
+
+if [ "$is_started" = "" ]
+then
+    echo "Starting SSH Agent"
+    eval $(ssh-agent)
+fi
+
+ssh-add -q ~/.ssh/"$keyname"
+
+echo "Dropping you into a new bash session to keep the agent running..."
+echo -e "${GREEN}Now try logging in with:${NC} ${CYAN}ssh $pi_default_user@$pi_ip${NC}"
+bash -i

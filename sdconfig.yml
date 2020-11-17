@@ -4,5 +4,6 @@
   gather_facts: true
   vars:
     os_version: "lite"
+    skip_write: true
   roles:
     - sdconfig

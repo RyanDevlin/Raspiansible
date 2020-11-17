@@ -12,7 +12,7 @@
       - '"loop" not in item' # We don't care about loop devices
       - ansible_devices[item]['removable'] == "1" # The SD card should show up with this flag set
       - item in common_devices # See device-discovery-vars.yml to modify this list
-      - "'usb' in ansible_devices[item]['model'] | lower or 'usb' in ansible_devices[item]['host'] | lower or 'usb' in ansible_devices[item]['links']['ids'] | lower"
+      - "trigger_word in ansible_devices[item]['model'] | lower or trigger_word in ansible_devices[item]['host'] | lower or trigger_word in ansible_devices[item]['links']['ids'] | lower"
 
   - fail:
       msg: "Failed locating suitable device to install on. Please override the 'manual_install_target' variable with a device name such as 'sda'"
@@ -30,16 +30,3 @@
 - debug:
     msg: "{{ install_target_facts }}"
     verbosity: 1
-
-#- block:
-#  - pause:
-#      prompt: "Do you wish to continue with the installation (y/n)?"
-#    register: selection
-#    delegate_to: localhost
-
-#  - set_fact:
-#      decision: "{{ selection.user_input }}"
-
-#- fail:
-#    msg: "Installation aborted."
-#  when: decision | lower == "n" or decision | lower == "no"

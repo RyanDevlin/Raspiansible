@@ -1,35 +1,27 @@
 ---
 # ===============================================================================================
-# defaults file for sdconfig
-
-# Vars associated with image-get
+# Vars associated with image-get.yaml
 os_version: "lite"
 
-raspbian_urls:
-  full: "https://downloads.raspberrypi.org/raspios_full_armhf_latest"
-  desktop: "https://downloads.raspberrypi.org/raspios_armhf_latest"
-  lite: "https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
-
 # ===============================================================================================
-# Vars associated with device-discovery
+# Vars associated with device-discovery.yaml
 
-# The namne of the device Raspbian will be installed on (eg. 'sda', 'sdb')
+# The name of the device Raspbian will be installed on (eg. 'sda', 'sdb')
 # If left blank, automatic discovery will try to find the disk
 manual_install_target: ''
-
-# These are the devices we will scan through to search for the trigger words.
-# This isn't a catch all, as maybe the user has 5+ usb block devices plugged in (you never know),
-# in which case we will fall back on asking them to edit the variable above.
-common_devices:
-  - "sda"
-  - "sdb"
-  - "sdc"
-  - "mmcblk0"
-  - "mmcblk1"
-  - "mmcblk2"
 
 # ===============================================================================================
 # Vars associated with write-image.yml
 
 # bs passed directly to dd
 block_size: "4M"
+
+# If this variable is overriden to true, the image will not be burned to the device,
+# but all other configuration changes will take place
+skip_write: false
+
+# ===============================================================================================
+# Vars associated with raspi-config.yml
+
+# For list of 2 letter ISO 3166-1 country codes, see here: https://en.wikipedia.org/wiki/ISO_3166-1
+country_code: "us"

@@ -1,0 +1,3 @@
+---
+# tasks file for rpios-init
+- include_tasks: "security.yml"

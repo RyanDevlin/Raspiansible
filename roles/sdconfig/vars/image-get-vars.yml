@@ -1,6 +1,11 @@
 ---
 # vars file for image-get.yml tasks
 
+raspbian_urls:
+  full: "https://downloads.raspberrypi.org/raspios_full_armhf_latest"
+  desktop: "https://downloads.raspberrypi.org/raspios_armhf_latest"
+  lite: "https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
+
 shorthand_versions:
   - 'full'
   - 'desktop'
@@ -10,7 +15,10 @@ raspbian_os:
   full: "Raspbian Desktop With Recommended Software"
   desktop: "Raspbian Desktop"
   lite: "Raspbian Lite"
-  
+
+# The regex here is used to determine if the OS image is already cached on the filesystem
+# Since each new image is named slightly differently, we simply use these regex pattens to
+# disinguish each image based on the current naming conventions used by Raspberry Pi 
 raspbian_type_rule:
   full: '(?=.*full)(?=.*\.img$)' # Must contain 'full'
   desktop: '^(?=.*raspios)((?!full|lite).)*(\.img)$' # Does not contain 'full' or 'lite', but contains 'raspios'

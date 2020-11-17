@@ -1,0 +1,5 @@
+---
+# vars file for device-discovery.yml tasks
+
+# localhost location for temporarily hosting raspi filesystem
+fs_boot_mountpoint: "/mnt/raspi/boot"

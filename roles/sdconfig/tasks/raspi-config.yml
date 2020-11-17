@@ -1,0 +1,43 @@
+- name: Configure boot filesystem
+  become: yes
+  block:
+  - name: Mount the filesystems to edit them
+    block:
+    - name: Mount the Raspian Boot Filesystem in a location we can access
+      mount:
+        path: "{{ fs_boot_mountpoint }}"
+        src: /dev/{{ install_target }}1
+        fstype: vfat
+        state: mounted
+
+    # We use a rescue here to print out a standard message if either of the above fail.
+    rescue:
+      - fail:
+          msg: "Could not find the partitions /dev/{{ install_target }}1 and /dev/{{ install_target }}2, try rerunning the playbook with skip_write == false."
+
+  - name: Copy the wifi configuration file into the boot filesystem
+    template:
+      src: wpa_supplicant.conf.j2
+      dest: "{{ fs_boot_mountpoint }}/wpa_supplicant.conf"
+      mode: '600'
+
+  - name: Determine if ssh file exists
+    stat: 
+      path: "{{ fs_boot_mountpoint }}/ssh"
+    register: stat_ssh_file
+
+  - name: Enable ssh on Raspberry Pi boot
+    file:
+      path: "{{ fs_boot_mountpoint }}/ssh"
+      state: touch
+      mode: '600'
+    when: stat_ssh_file.stat.exists == false
+  
+  - name: Unmount fully configured SD card
+    mount:
+      path: "{{ fs_boot_mountpoint }}"
+      state: absent
+
+  - name: Configuration Complete!
+    debug:
+      msg: "The SD card is now safe to remove. Insert it into your Pi and power it on!"

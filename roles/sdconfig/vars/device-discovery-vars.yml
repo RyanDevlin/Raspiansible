@@ -1,7 +1,17 @@
 ---
 # vars file for device-discovery.yml tasks
 
+# These are the devices we will scan through to search for the trigger words.
+# This isn't a catch all, as maybe the user has 5+ usb block devices plugged in (you never know),
+# in which case we will fall back on asking them to edit the manual_install_target variable in the defaults file.
+common_devices:
+  - "sda"
+  - "sdb"
+  - "sdc"
+  - "mmcblk0"
+  - "mmcblk1"
+  - "mmcblk2"
+
 # If any of the words in this list are found in the the devices 'host' or 'links.ids' or 'model'
 # sections of the localhost Ansible Facts, the device will be suggested as an installation target
-trigger_words:
-  - "usb"
+trigger_word: "usb"

@@ -13,25 +13,27 @@
   - set_fact:
       decision: "{{ selection.user_input }}"
 
-- fail:
-    msg: "Installation aborted."
-  when: decision | lower == "n"
+  - fail:
+      msg: "Installation aborted."
+    when: decision | lower == "n"
 
-- fail:
-    msg: "You've replied '{{ decision }}'. This is not a valid confirmation. Please type y/Y or n/N. Aborting..."
-  when: decision | lower != "y"
+  - fail:
+      msg: "You've replied '{{ decision }}'. This is not a valid confirmation. Please type y/Y or n/N. Aborting..."
+    when: decision | lower != "y"
 
-- name: Unmount target device
-  mount:
-    path: "{{ install_target_facts['value']['mounts'][item] }}"
-    state: unmounted
-  with_items: "{{ install_target_facts['value']['mounts'] }}"
+  - name: Unmount target device
+    mount:
+      path: "{{ install_target_facts['value']['mounts'][item] }}"
+      state: absent
+    with_items: "{{ install_target_facts['value']['mounts'] }}"
 
-- name: "Burning {{ raspbian_os[os_version] }} image to disk /dev/{{ install_target }} [This can take minutes]"
-  command: "dd bs={{ block_size }} if={{ role_path }}/files/{{ file_on_disk }} of=/dev/{{ install_target }} conv=fsync"
-  register: result
-  become: yes
+  - name: "Burning {{ raspbian_os[os_version] }} image to disk /dev/{{ install_target }} [This can take minutes]"
+    command: "dd bs={{ block_size }} if={{ role_path }}/files/{{ file_on_disk }} of=/dev/{{ install_target }} conv=fsync"
+    register: result
+    become: yes
 
-- name:
-  debug:
-    msg: "{{ result }}"
+  - name:
+    debug:
+      msg: "{{ result }}"
+  when: skip_write == false
+  # The skip_write variable allows users to manually skip overwriting the disk if they've writen to it recently

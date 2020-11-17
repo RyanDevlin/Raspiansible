@@ -8,6 +8,7 @@ results
 *.zip
 *.img
 documentation/
+wifi_creds.yml # This is a vault file
 
 # User-specific files
 *.rsuser
